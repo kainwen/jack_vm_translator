@@ -1,0 +1,25 @@
+#!/usr/bin/env escript
+%%! -pa ./ebin
+
+-mode(compile).
+
+main([VmFile]) ->
+    case filelib:is_dir(VmFile) of
+        true ->
+            handle_files(VmFile);
+        false ->
+            handle_single_file(VmFile)
+    end.
+
+handle_files(Dirname) ->
+    jack_vm:scan_and_trans_dir(Dirname,
+                               filename:join(Dirname,
+                                             string:concat(filename:basename(Dirname), ".asm"))).
+
+handle_single_file(VmFile) ->
+    AsmFile = change_name(VmFile),
+    jack_vm:scan_and_trans(VmFile, AsmFile).
+
+change_name(Name) ->
+    Root = filename:rootname(Name),
+    string:join([Root, "asm"], ".").
